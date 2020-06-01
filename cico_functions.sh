@@ -108,6 +108,7 @@ function build_and_push() {
 
   # Let's build and push image to 'quay.io' using git commit hash as tag first
   docker buildx create --platform linux/amd64,linux/s390x --name mybuilder
+  docker buildx use mybuilder
   docker buildx inspect --bootstrap
   docker buildx ls
   docker buildx build --platform linux/amd64,linux/s390x -t ${IMAGE} -f ./build/dockerfiles/${DOCKERFILE} . --progress plain
