@@ -111,7 +111,7 @@ function build_and_push() {
   docker buildx use mybuilder
   docker buildx inspect --bootstrap
   docker buildx ls
-  docker buildx build --platform linux/amd64,linux/s390x -t ${IMAGE} -f ./build/dockerfiles/${DOCKERFILE} . --progress plain
+  docker buildx build --platform linux/amd64,linux/s390x -t prabhavthali/che-machine-exec -f ./build/dockerfiles/${DOCKERFILE} . --push --progress plain
   #tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${GIT_COMMIT_TAG}"
   #echo "CICO: '${GIT_COMMIT_TAG}' version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
   echo "build successful"
