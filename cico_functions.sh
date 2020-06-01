@@ -43,8 +43,12 @@ function install_deps() {
   yum install -d1 -y docker-ce \
     git
 
-  service docker start
+  #service docker start
   echo 'CICO: Dependencies installed'
+  
+  docker run --rm --privileged multiarch/qemu-user-static:register --reset
+  uname -r
+  cat /proc/sys/fs/binfmt_misc/qemu-arm
 }
 
 function set_release_tag() {
@@ -73,6 +77,8 @@ function tag_push() {
 }
 
 function build_and_push() {
+  export DOCKER_CLI_EXPERIMENTAL=enabled
+  docker version
   REGISTRY="quay.io"
   DOCKERFILE="Dockerfile"
   ORGANIZATION="eclipse"
@@ -86,13 +92,17 @@ function build_and_push() {
 
   # Let's build and push image to 'quay.io' using git commit hash as tag first
   set_git_commit_tag
-  docker build -t ${IMAGE} -f ./build/dockerfiles/${DOCKERFILE} . | cat
-  tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${GIT_COMMIT_TAG}"
-  echo "CICO: '${GIT_COMMIT_TAG}' version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
+  docker buildx create --name builder
+  docker buildx use builder
+  docker buildx inspect --bootstrap
+  docker buildx ls
+  docker buildx build --load -t ${IMAGE} -f ./build/dockerfiles/${DOCKERFILE} --target registry --platform=linux/amd64,linux/s390x . 
+  #tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${GIT_COMMIT_TAG}"
+  #echo "CICO: '${GIT_COMMIT_TAG}' version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
 
   # If additional tag is set (e.g. "nightly"), let's tag the image accordingly and also push to 'quay.io'
-  if [ -n "${TAG}" ]; then
-    tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${TAG}"
-    echo "CICO: '${TAG}'  version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
-  fi
+  #if [ -n "${TAG}" ]; then
+    #tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${TAG}"
+    #echo "CICO: '${TAG}'  version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
+  #fi
 }
