@@ -47,9 +47,23 @@ function install_deps() {
   nohup dockerd &
   echo 'CICO: Dependencies installed'
   
-  docker run --rm --privileged multiarch/qemu-user-static:register --reset
-  uname -r
-  cat /proc/sys/fs/binfmt_misc/qemu-arm
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "Can't find docker"
+  fi
+  docker_version="$(docker --version | cut -d' ' -f3 | tr -cd '0-9.')"
+  if [[ "$(version "$docker_version")" < "$(version '19.03')" ]]; then
+    echo "docker $docker_version too old. Need >= 19.03"
+  fi
+
+  # Kernel
+  #kernel_version="$(uname -r)"
+  #if [[ "$(version "$kernel_version")" < "$(version '4.8')" ]]; then
+    #error "Kernel $kernel_version too old - need >= 4.8." \
+         # " Install a newer kernel."
+  #else
+   #ok "kernel $kernel_version has binfmt_misc fix-binary (F) support."
+  #fi
+
 }
 
 function set_release_tag() {
@@ -78,6 +92,7 @@ function tag_push() {
 }
 
 function build_and_push() {
+  export DOCKER_BUILD_KIT=1
   export DOCKER_CLI_EXPERIMENTAL=enabled
   docker version
   REGISTRY="quay.io"
@@ -92,15 +107,13 @@ function build_and_push() {
   fi
 
   # Let's build and push image to 'quay.io' using git commit hash as tag first
-  set_git_commit_tag
-  docker buildx create --name builder
-  docker buildx use builder
+  docker buildx create --platform linux/amd64,linux/s390x --name mybuilder
   docker buildx inspect --bootstrap
   docker buildx ls
-  docker buildx build --load -t ${IMAGE} -f ./build/dockerfiles/${DOCKERFILE} --platform=linux/amd64,linux/s390x . 
+  docker buildx build --platform linux/amd64,linux/s390x -t ${IMAGE} -f ./build/dockerfiles/${DOCKERFILE} . --progress plain
   #tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${GIT_COMMIT_TAG}"
   #echo "CICO: '${GIT_COMMIT_TAG}' version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
-
+  echo "build successful"
   # If additional tag is set (e.g. "nightly"), let's tag the image accordingly and also push to 'quay.io'
   #if [ -n "${TAG}" ]; then
     #tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${TAG}"
