@@ -96,7 +96,7 @@ function build_and_push() {
   docker buildx use builder
   docker buildx inspect --bootstrap
   docker buildx ls
-  docker buildx build --load -t ${IMAGE} -f ./build/dockerfiles/${DOCKERFILE} --target registry --platform=linux/amd64,linux/s390x . 
+  docker buildx build --load -t ${IMAGE} -f ./build/dockerfiles/${DOCKERFILE} --platform=linux/amd64,linux/s390x . 
   #tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${GIT_COMMIT_TAG}"
   #echo "CICO: '${GIT_COMMIT_TAG}' version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
 
