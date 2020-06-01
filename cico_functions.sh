@@ -44,6 +44,7 @@ function install_deps() {
     git
 
   #service docker start
+  nohup dockerd &
   echo 'CICO: Dependencies installed'
   
   docker run --rm --privileged multiarch/qemu-user-static:register --reset
