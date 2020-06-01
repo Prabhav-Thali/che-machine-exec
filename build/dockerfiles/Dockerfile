@@ -13,6 +13,9 @@
 #
 FROM --platform=$BUILDPLATFORM golang:1.12.8-alpine as go_builder
 
+ARG TARGETPLATFORM
+ARG BUILDPLATFORM
+
 ENV USER=machine-exec
 ENV UID=12345
 ENV GID=23456
@@ -35,7 +38,7 @@ RUN apk update && apk add --no-cache git && update-ca-certificates
 # compile machine exec binary file
 WORKDIR /che-machine-exec/
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o /go/bin/che-machine-exec .
+RUN GOARCH=$(echo $TARGETPLATFORM | cut -f2 -d '/') CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o /go/bin/che-machine-exec .
 
 FROM --platform=$BUILDPLATFORM node:10.16-alpine as cloud_shell_builder
 COPY --from=go_builder /che-machine-exec/cloud-shell cloud-shell-src
