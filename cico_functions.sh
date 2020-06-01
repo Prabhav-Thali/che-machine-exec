@@ -55,13 +55,11 @@ function install_deps() {
   fi
 
   # Kernel
-  #kernel_version="$(uname -r)"
-  #if [[ "$(version "$kernel_version")" < "$(version '4.8')" ]]; then
-    #error "Kernel $kernel_version too old - need >= 4.8." \
-         # " Install a newer kernel."
-  #else
-   #ok "kernel $kernel_version has binfmt_misc fix-binary (F) support."
-  #fi
+  kernel_version="$(uname -r)"
+  if [[ "$(version "$kernel_version")" < "$(version '4.8')" ]]; then
+    error "Kernel $kernel_version too old - need >= 4.8." \
+         " Install a newer kernel."
+  fi
 
 }
 
@@ -110,7 +108,7 @@ function build_and_push() {
   docker buildx use builder
   docker buildx inspect --bootstrap
   docker buildx ls
-  docker buildx build --platform linux/amd64,linux/s390x -t prabhavthali/che-machine-exec -f ./build/dockerfiles/${DOCKERFILE} . --push --progress plain
+  docker buildx build --platform linux/amd64,linux/s390x -t prabhavthali/che-machine-exec -f ./build/dockerfiles/${DOCKERFILE} . --push --progress plain --no-cache
   #tag_push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${GIT_COMMIT_TAG}"
   #echo "CICO: '${GIT_COMMIT_TAG}' version of images pushed to '${REGISTRY}/${ORGANIZATION}' organization"
   echo "build successful"
