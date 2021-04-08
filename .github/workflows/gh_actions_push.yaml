@@ -13,7 +13,7 @@ name: Docker Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ commit-8-f997240afb92c2a11c512a44ba31ee93585b2d32 ]
 jobs:
   build-push:
     runs-on: ubuntu-latest
@@ -38,8 +38,8 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         file: build/dockerfiles/Dockerfile
-        platforms: linux/amd64,linux/ppc64le,linux/arm64
+        platforms: linux/amd64,linux/ppc64le,linux/arm64,linux/s390x
         push: true
         tags: |
-          quay.io/eclipse/che-machine-exec:nightly
-          quay.io/eclipse/che-machine-exec:${{ steps.vars.outputs.sha_short }}
+          quay.io/prabhav/che-machine-exec:nightly-commit8
+          quay.io/prabhav/che-machine-exec:${{ steps.vars.outputs.sha_short }}-commit8
