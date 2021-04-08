@@ -22,6 +22,8 @@ jobs:
       uses: actions/checkout@v2
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v1
+      with:
+        image: shahid1984/binfmt:qemu-6rc1-new
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
     - name: Login to quay.io
