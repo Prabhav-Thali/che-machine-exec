@@ -13,7 +13,7 @@ name: Docker Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ commit-4-d94df6489e4d35d9c82b2a3c98d7b58ee59105f5 ]
 jobs:
   build-push:
     runs-on: ubuntu-latest
