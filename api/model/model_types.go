@@ -14,8 +14,8 @@ package model
 
 import (
 	"github.com/eclipse/che-go-jsonrpc/event"
-	line_buffer "github.com/eclipse/che-machine-exec/output/line-buffer"
-	ws_conn "github.com/eclipse/che-machine-exec/ws-conn"
+	line_buffer "github.com/eclipse-che/che-machine-exec/output/line-buffer"
+	ws_conn "github.com/eclipse-che/che-machine-exec/ws-conn"
 	"k8s.io/client-go/tools/remotecommand"
 )
 
@@ -32,15 +32,14 @@ type MachineIdentifier struct {
 }
 
 type ContainerInfo struct {
-	ContainerName string
-	PodName       string
+	PodName       string `json:"pod"`
+	ContainerName string `json:"container"`
 }
 
 //ResolvedExec holds info client might send to create exec
 type ResolvedExec struct {
-	PodName       string   `json:"pod"`
-	ContainerName string   `json:"container"`
-	Cmd           []string `json:"cmd"`
+	ContainerInfo
+	Cmd []string `json:"cmd"`
 }
 
 // Todo code Refactoring: MachineExec should be simple object for exec creation, without any business logic
@@ -99,7 +98,7 @@ func (*ExecErrorEvent) Type() string {
 }
 
 type InitConfigParams struct {
-	ContainerName    string `json:"container"` //optional, Will be first available if not set
+	ContainerName    string `json:"container"` // optional, Will be first suitable container in pod if not set
 	KubeConfigParams `json:"kubeconfig"`
 }
 

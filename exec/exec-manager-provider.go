@@ -15,8 +15,8 @@ package exec
 import (
 	"os"
 
-	"github.com/eclipse/che-machine-exec/api/model"
-	"github.com/eclipse/che-machine-exec/client"
+	"github.com/eclipse-che/che-machine-exec/api/model"
+	"github.com/eclipse-che/che-machine-exec/client"
 	"github.com/gorilla/websocket"
 	"github.com/sirupsen/logrus"
 )
@@ -46,7 +46,7 @@ type ExecManager interface {
 	Resize(id int, cols uint, rows uint) error
 
 	// Create a kubeconfig
-	CreateKubeConfig(kubeConfigParams *model.InitConfigParams) error
+	CreateKubeConfig(kubeConfigParams *model.KubeConfigParams, containerInfo *model.ContainerInfo) error
 }
 
 // CreateExecManager creates and returns new instance ExecManager.

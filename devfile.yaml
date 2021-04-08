@@ -5,16 +5,16 @@ projects:
   - name: che-machine-exec
     source:
       type: git
-      location: https://github.com/eclipse/che-machine-exec.git
+      location: https://github.com/eclipse-che/che-machine-exec.git
 components:
   - alias: ms-vscode.go
-    id: ms-vscode/go/latest
+    id: golang/go/latest
     type: chePlugin
     memoryLimit: 1G
 
   - alias: typescript-plugin
     type: chePlugin
-    id: che-incubator/typescript/1.30.2
+    id: vscode/typescript-language-features/latest
     memoryLimit: 512M
 
   - alias: theia-dev-or-cloud-shell
@@ -63,7 +63,7 @@ commands:
     actions:
       - type: exec
         component: dev
-        command: go test ./...
+        command: export CHE_WORKSPACE_ID=test_id; go test ./...
         workdir: /projects/che-machine-exec
 
   - name: format

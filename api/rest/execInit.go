@@ -15,12 +15,13 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/eclipse/che-machine-exec/auth"
-	"github.com/eclipse/che-machine-exec/common/rest"
 	"net/http"
 
-	"github.com/eclipse/che-machine-exec/api/model"
-	"github.com/eclipse/che-machine-exec/exec"
+	"github.com/eclipse-che/che-machine-exec/auth"
+	"github.com/eclipse-che/che-machine-exec/common/rest"
+
+	"github.com/eclipse-che/che-machine-exec/api/model"
+	"github.com/eclipse-che/che-machine-exec/exec"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -46,13 +47,16 @@ func HandleInit(c *gin.Context) {
 		return
 	}
 
+	kubeConfigParams := initConfigParams.KubeConfigParams
+	kubeConfigParams.BearerToken = token
+
 	execRequest := handleContainerResolve(c, token, initConfigParams.ContainerName)
 	if execRequest == nil {
 		rest.WriteResponse(c, http.StatusInternalServerError, "Could not retrieve exec request")
 		return
 	}
 
-	err := HandleKubeConfigCreation(c, &initConfigParams, token)
+	err := HandleKubeConfigCreation(&kubeConfigParams, &execRequest.ContainerInfo)
 	if err != nil {
 		rest.WriteResponse(c, http.StatusInternalServerError, err.Error())
 		return

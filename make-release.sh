@@ -7,26 +7,38 @@
 TRIGGER_RELEASE=0 
 NOCOMMIT=0
 
+REGISTRY="quay.io"
+DOCKERFILE="build/dockerfiles/Dockerfile"
+ORGANIZATION="eclipse"
+IMAGE="che-machine-exec"
+
 while [[ "$#" -gt 0 ]]; do
   case $1 in
-    '-t'|'--trigger-release') TRIGGER_RELEASE=1; NOCOMMIT=0; shift 0;;
-    '-r'|'--repo') REPO="$2"; shift 1;;
+    '-t'|'--trigger-release') TRIGGER_RELEASE=1; shift 0;;
     '-v'|'--version') VERSION="$2"; shift 1;;
-    '-n'|'--no-commit') NOCOMMIT=1; TRIGGER_RELEASE=0; shift 0;;
+    '-n'|'--no-commit') NOCOMMIT=1; shift 0;;
   esac
   shift 1
 done
 
 usage ()
 {
-  echo "Usage: $0 --repo [GIT REPO TO EDIT] --version [VERSION TO RELEASE] [--trigger-release]"
-  echo "Example: $0 --repo git@github.com:eclipse/che-subproject --version 7.7.0 --trigger-release"; echo
+  echo "Usage: $0 --version [VERSION TO RELEASE] [--trigger-release]"
+  echo "Example: $0 --version 7.7.0 --trigger-release"; echo
 }
 
-if [[ ! ${VERSION} ]] || [[ ! ${REPO} ]]; then
+if [[ ! ${VERSION} ]]; then
   usage
   exit 1
 fi
+
+releaseMachineExec() {
+  # docker buildx includes automated push to registry, so build using tag we want published, not just local ${IMAGE}
+  docker buildx build \
+    --tag "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${VERSION}" --push \
+    -f ./${DOCKERFILE} . --platform "linux/amd64,linux/ppc64le" | cat
+  echo "Pushed ${REGISTRY}/${ORGANIZATION}/${IMAGE}:${VERSION}"
+}
 
 # derive branch from version
 BRANCH=${VERSION%.*}.x
@@ -38,23 +50,17 @@ else
   BASEBRANCH="${BRANCH}"
 fi
 
-# work in tmp dir
-TMP=$(mktemp -d); pushd "$TMP" > /dev/null || exit 1
-
-# get sources from ${BASEBRANCH} branch
-echo "Check out ${REPO} to ${TMP}/${REPO##*/}"
-git clone "${REPO}" -q
-cd "${REPO##*/}" || exit 1
-git fetch origin "${BASEBRANCH}":"${BASEBRANCH}"
-git checkout "${BASEBRANCH}"
-
 # create new branch off ${BASEBRANCH} (or check out latest commits if branch already exists), then push to origin
 if [[ "${BASEBRANCH}" != "${BRANCH}" ]]; then
   git branch "${BRANCH}" || git checkout "${BRANCH}" && git pull origin "${BRANCH}"
   git push origin "${BRANCH}"
-  git fetch origin "${BRANCH}:${BRANCH}"
+  git fetch origin "${BRANCH}:${BRANCH}" || true
   git checkout "${BRANCH}"
+else
+  git fetch origin "${BRANCH}:${BRANCH}" || true
+  git checkout ${BRANCH}
 fi
+set -e
 
 # change VERSION file
 echo "${VERSION}" > VERSION
@@ -69,10 +75,7 @@ fi
 
 if [[ $TRIGGER_RELEASE -eq 1 ]]; then
   # push new branch to release branch to trigger CI build
-  git fetch origin "${BRANCH}:${BRANCH}"
-  git checkout "${BRANCH}"
-  git branch release -f 
-  git push origin release -f
+  releaseMachineExec
 
   # tag the release
   git checkout "${BRANCH}"
@@ -81,7 +84,7 @@ if [[ $TRIGGER_RELEASE -eq 1 ]]; then
 fi
 
 # now update ${BASEBRANCH} to the new snapshot version
-git fetch origin "${BASEBRANCH}":"${BASEBRANCH}"
+git fetch origin "${BASEBRANCH}":"${BASEBRANCH}" || true
 git checkout "${BASEBRANCH}"
 
 # change VERSION file + commit change into ${BASEBRANCH} branch
@@ -119,8 +122,3 @@ if [[ ${NOCOMMIT} -eq 0 ]]; then
 ${lastCommitComment}" -b "${BRANCH}" -h "${PR_BRANCH}"
   fi 
 fi
-
-popd > /dev/null || exit
-
-# cleanup tmp dir
-cd /tmp && rm -fr "$TMP"

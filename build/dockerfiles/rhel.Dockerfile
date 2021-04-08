@@ -10,7 +10,7 @@
 #
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/rhel8/go-toolset
-FROM registry.redhat.io/rhel8/go-toolset:1.13.4-15 as builder
+FROM registry.redhat.io/rhel8/go-toolset:1.14.12-5 as builder
 ENV GOPATH=/go/
 USER root
 WORKDIR /che-machine-exec/
@@ -27,6 +27,7 @@ RUN adduser unprivilegeduser && \
 FROM scratch
 
 COPY --from=builder /rootfs /
+COPY --from=builder /usr/bin/sleep /usr/bin/sleep
 
 USER unprivilegeduser
 ENTRYPOINT ["/go/bin/che-machine-exec"]

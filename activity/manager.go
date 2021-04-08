@@ -14,7 +14,7 @@ package activity
 
 import (
 	"errors"
-	"github.com/eclipse/che-machine-exec/exec"
+	"github.com/eclipse-che/che-machine-exec/exec"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -29,15 +29,15 @@ import (
 )
 
 var (
-	WorkspaceAPIResource = &metav1.APIResource{
-		Name:       "workspaces",
-		Group:      "workspace.che.eclipse.org",
+	DevWorkspaceAPIResource = &metav1.APIResource{
+		Name:       "devworkspaces",
+		Group:      "workspace.devfile.io",
 		Version:    "v1alpha1",
 		Namespaced: true,
 	}
 
-	WorkspaceGroupVersion = &schema.GroupVersion{
-		Group:   "workspace.che.eclipse.org",
+	DevWorkspaceGroupVersion = &schema.GroupVersion{
+		Group:   "workspace.devfile.io",
 		Version: "v1alpha1",
 	}
 )
@@ -67,7 +67,10 @@ func New(idleTimeout, stopRetryPeriod time.Duration) (Manager, error) {
 
 	workspaceName, isFound := os.LookupEnv("CHE_WORKSPACE_NAME")
 	if !isFound {
-		return nil, errors.New("CHE_WORKSPACE_NAME env must be set for activity manager works correctly")
+		workspaceName, isFound = os.LookupEnv("DEVWORKSPACE_NAME")
+		if !isFound {
+			return nil, errors.New("CHE_WORKSPACE_NAME or DEVWORKSPACE_NAME environment variables must be set for activity manager to work correctly")
+		}
 	}
 
 	return managerImpl{
@@ -144,6 +147,11 @@ func (m managerImpl) stopWorkspace() error {
 
 	stopWorkspacePath := &unstructured.Unstructured{
 		Object: map[string]interface{}{
+			"metadata": map[string]interface{}{
+				"annotations": map[string]interface{}{
+					"controller.devfile.io/stopped-by": "inactivity",
+				},
+			},
 			"spec": map[string]interface{}{
 				"started": false,
 			},
@@ -154,7 +162,7 @@ func (m managerImpl) stopWorkspace() error {
 		return err
 	}
 
-	_, err = c.Resource(WorkspaceAPIResource, m.namespace).Patch(m.workspaceName, types.MergePatchType, jsonPath)
+	_, err = c.Resource(DevWorkspaceAPIResource, m.namespace).Patch(m.workspaceName, types.MergePatchType, jsonPath)
 	if err != nil {
 		return err
 	}
@@ -168,7 +176,7 @@ func newWorkspaceClientInCluster() (dynamic.Interface, error) {
 		return nil, err
 	}
 	config.APIPath = "/apis"
-	config.GroupVersion = WorkspaceGroupVersion
+	config.GroupVersion = DevWorkspaceGroupVersion
 
 	c, err := dynamic.NewClient(config)
 	if err != nil {
