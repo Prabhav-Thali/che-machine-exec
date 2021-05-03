@@ -18,10 +18,7 @@ env:
   global:    
   - SHORT_SHA=$(git rev-parse --short HEAD)
 
-jobs:
-  include:
-    - stage: Build and push both short SHA tag and nightly tag
-      script:
+script:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
       - docker build -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-machine-exec:nightly .
