@@ -2,14 +2,14 @@ branches:
   only:
   - travis-s390x
 
+language: go
+
 os: linux
 dist: focal
 
 arch:
   - amd64
   - s390x
-
-language: go
 
 services:
   - docker
