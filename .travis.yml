@@ -16,7 +16,10 @@ env:
   global:
   - SHORT_SHA=$(git rev-parse --short HEAD)
 
-script:
+stages:
+  name: Build nightly tags
+  if: branch = master && "$TRAVIS_PULL_REQUEST" == "false"
+  script:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
       - docker build -f build/dockerfiles/Dockerfile -t quay.io/prabhav/che-machine-exec:nightly-${TRAVIS_CPU_ARCH} .
