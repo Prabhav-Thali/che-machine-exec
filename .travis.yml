@@ -13,9 +13,12 @@ arch:
 services:
   - docker
 
-env:  
-  global:
-  - SHORT_SHA=$(git rev-parse --short HEAD)
+# env:  
+#   global:
+#   - SHORT_SHA=$(git rev-parse --short HEAD)
+
+install: 
+  - export SHORT_SHA=$(git rev-parse --short HEAD)
 
 script: |
       if [ "$TRAVIS_PULL_REQUEST" != "true" ]; then
