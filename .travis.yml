@@ -4,31 +4,25 @@ branches:
 
 dist: focal
 
+arch:
+  - amd64
+  - s390x
+
 services:
   - docker
+
+env:  
+  global:    
+    - SHORT_SHA=$(git rev-parse --short HEAD)
 
 jobs:
   include:
     - stage:
-      name: "Build and push both short SHA tag and nightly tag on amd64"
-      os: linux
-      arch: amd64
-      env:
-        SHORT_SHA: $(git rev-parse --short HEAD)
+      name: "Build and push both short SHA tag and nightly tag"
       script:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
       - docker build -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-machine-exec:nightly .
       - docker tag quay.io/eclipse/che-machine-exec:nightly quay.io/eclipse/che-machine-exec:${SHORT_SHA}
-
-    - stage:
-      name: "Build and push both short SHA tag and nightly tag on s390x"
-      os: linux
-      arch: s390x
-      env:
-        SHORT_SHA: $(git rev-parse --short HEAD)
-      script:
-      - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-      - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
-      - docker build -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-machine-exec:nightly .
-      - docker tag quay.io/eclipse/che-machine-exec:nightly quay.io/eclipse/che-machine-exec:${SHORT_SHA}
+      - docker push quay.io/eclipse/che-machine-exec:nightly
+      - docker push quay.io/eclipse/che-machine-exec:${SHORT_SHA}
