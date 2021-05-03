@@ -20,8 +20,7 @@ env:
 
 jobs:
   include:
-    - stage:
-      name: "Build and push both short SHA tag and nightly tag"
+    - stage: Build and push both short SHA tag and nightly tag
       script:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
