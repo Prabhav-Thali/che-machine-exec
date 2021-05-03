@@ -20,8 +20,7 @@ jobs:
       arch: 
         - amd64
         - s390x
-      stage:
-        script:
+      script:
         - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
         - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
         - docker build -f build/dockerfiles/Dockerfile -t quay.io/prabhav/che-machine-exec:nightly-${TRAVIS_CPU_ARCH} .
