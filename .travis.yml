@@ -19,7 +19,8 @@ env:
 script:
       - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
       - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
-      - docker build -f build/dockerfiles/Dockerfile -t quay.io/eclipse/che-machine-exec:nightly .
-      - docker tag quay.io/eclipse/che-machine-exec:nightly quay.io/eclipse/che-machine-exec:${SHORT_SHA}
-      - docker push quay.io/eclipse/che-machine-exec:nightly
-      - docker push quay.io/eclipse/che-machine-exec:${SHORT_SHA}
+      - docker build -f build/dockerfiles/Dockerfile -t quay.io/prabhav/che-machine-exec:nightly .
+      - echo ${SHORT_SHA}
+      - docker tag quay.io/prabhav/che-machine-exec:nightly quay.io/prabhav/che-machine-exec:${SHORT_SHA}
+      - docker push quay.io/prabhav/che-machine-exec:nightly
+      - docker push quay.io/prabhav/che-machine-exec:${SHORT_SHA}
