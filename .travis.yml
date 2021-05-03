@@ -3,6 +3,10 @@ branches:
   - travis-s390x
 
 language: go
+
+go:
+- 1.12.8
+
 os: linux
 dist: focal
 
