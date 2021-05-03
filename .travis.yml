@@ -18,6 +18,7 @@ services:
 #   - SHORT_SHA=$(git rev-parse --short HEAD)
 
 install: 
+  - go get ${gobuild_args} ./...
   - export SHORT_SHA=$(git rev-parse --short HEAD)
 
 script: |
