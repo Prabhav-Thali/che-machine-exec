@@ -4,7 +4,7 @@ AMEND=""
 # if [ -n "$AMD64_VERSION" ]; then
 #     AMEND+=" --amend quay.io/prabhav/che-machine-exec:$AMD64_VERSION";
 # fi
-
+#
 # if [ -n "$ARM64_VERSION" ]; then
 #     AMEND+=" --amend quay.io/prabhav/che-machine-exec:$ARM64_VERSION";
 # fi
