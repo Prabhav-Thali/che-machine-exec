@@ -21,6 +21,8 @@ install:
   - export GO111MODULE="on" 
   - go get ${gobuild_args} ./...
   - export SHORT_SHA=$(git rev-parse --short HEAD)
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
 
 jobs:
   include:
@@ -49,25 +51,21 @@ jobs:
      arch: amd64
      script:
        - bash .travis/build_nightly.sh
-     after_success: export AMD64_VERSION=nightly-"${TRAVIS_CPU_ARCH}"
 
    - name: build image with nightly/short_sha tag on arm64
      arch: arm64
      script:
        - bash .travis/build_nightly.sh
-     after_success: export ARM64_VERSION=nightly-"${TRAVIS_CPU_ARCH}"
 
    - name: build image with nightly/short_sha tag on ppc64le
      arch: ppc64le
      script:
        - bash .travis/build_nightly.sh
-     after_success: export PPC64LE_VERSION=nightly-"${TRAVIS_CPU_ARCH}"
 
    - name: build image with nightly/short_sha tag on s390x
      arch: s390x
      script:
        - bash .travis/build_nightly.sh
-     after_success: export S390X_VERSION=nightly-"${TRAVIS_CPU_ARCH}"  
    
    - stage: Publish multiarch image
      script: bash .travis/publish_multiarch.sh
