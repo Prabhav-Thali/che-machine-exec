@@ -69,7 +69,4 @@ jobs:
        - bash .travis/build_nightly.sh
      after_success: export S390X_VERSION=nightly-"${TRAVIS_CPU_ARCH}"  
 
-   - name: publish multiarch nightly image
-     arch: amd64
-     install: apt install skopeo jq
-     script: bash .travis/publish_multiarch.sh
+after_success: bash .travis/publish_multiarch.sh
