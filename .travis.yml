@@ -10,10 +10,6 @@ go:
 os: linux
 dist: focal
 
-arch:
-  - amd64
-  - s390x
-
 services:
   - docker
 
@@ -26,24 +22,54 @@ install:
   - go get ${gobuild_args} ./...
   - export SHORT_SHA=$(git rev-parse --short HEAD)
 
-script: |
-      if [ "$TRAVIS_PULL_REQUEST" != "true" ]; then
-        # Build machine-exec binary
-        CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -installsuffix cgo -o che-machine-exec .
-        export CHE_WORKSPACE_ID=test_id
-        # execute tests
-        go test ./... -test.v
+jobs:
+  include:
+   - stage: run unit test on amd64
+     if: type = pull_request
+     arch: amd64
+     script: bash .travis/unit_tests.sh
 
-        # Build PR check image
-        docker build -f build/dockerfiles/Dockerfile -t quay.io/prabhav/che-machine-exec:pr-check-${TRAVIS_CPU_ARCH} .
-      fi
+   - name: run unit test on arm64
+     if: type = pull_request
+     arch: arm64
+     script: bash .travis/unit_tests.sh
 
-      if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
-        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-        - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
-        - docker build -f build/dockerfiles/Dockerfile -t quay.io/prabhav/che-machine-exec:nightly-${TRAVIS_CPU_ARCH} .
-        - echo ${SHORT_SHA}
-        - docker tag quay.io/prabhav/che-machine-exec:nightly-${TRAVIS_CPU_ARCH} quay.io/prabhav/che-machine-exec:${SHORT_SHA}-${TRAVIS_CPU_ARCH}
-        - docker push quay.io/prabhav/che-machine-exec:nightly-${TRAVIS_CPU_ARCH}
-        - docker push quay.io/prabhav/che-machine-exec:${SHORT_SHA}-${TRAVIS_CPU_ARCH}
-      fi
+   - name: run unit test on ppc64le
+     if: type = pull_request
+     arch: ppc64le
+     script: bash .travis/unit_tests.sh
+
+   - name: run unit test on s390x
+     if: type = pull_request
+     arch: s390x
+     script: bash .travis/unit_tests.sh
+
+   - stage: build images
+     name: build image with nightly/short_sha tag on amd64
+     arch: amd64
+     script:
+       - bash .travis/build_nightly.sh
+     after_success: export AMD64_VERSION=nightly-"${TRAVIS_CPU_ARCH}"
+
+   - name: build image with nightly/short_sha tag on arm64
+     arch: arm64
+     script:
+       - bash .travis/build_nightly.sh
+     after_success: export ARM64_VERSION=nightly-"${TRAVIS_CPU_ARCH}"
+
+   - name: build image with nightly/short_sha tag on ppc64le
+     arch: ppc64le
+     script:
+       - bash .travis/build_nightly.sh
+     after_success: export PPC64LE_VERSION=nightly-"${TRAVIS_CPU_ARCH}"
+
+   - name: build image with nightly/short_sha tag on s390x
+     arch: s390x
+     script:
+       - bash .travis/build_nightly.sh
+     after_success: export S390X_VERSION=nightly-"${TRAVIS_CPU_ARCH}"  
+
+   - name: publish multiarch nightly image
+     arch: amd64
+     install: apt install skopeo jq
+     script: bash .travis/publish_multiarch.sh
