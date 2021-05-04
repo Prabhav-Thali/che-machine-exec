@@ -8,7 +8,7 @@ AMEND=""
 # if [ -n "$ARM64_VERSION" ]; then
 #     AMEND+=" --amend quay.io/prabhav/che-machine-exec:$ARM64_VERSION";
 # fi
-
+#
 # if [ -n "$PPC64LE_VERSION" ]; then
 #     AMEND+=" --amend quay.io/prabhav/che-machine-exec:$PPC64LE_VERSION";
 # fi
