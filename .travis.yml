@@ -68,5 +68,6 @@ jobs:
      script:
        - bash .travis/build_nightly.sh
      after_success: export S390X_VERSION=nightly-"${TRAVIS_CPU_ARCH}"  
-
-after_success: bash .travis/publish_multiarch.sh
+   
+   - stage: Publish multiarch image
+     script: bash .travis/publish_multiarch.sh
