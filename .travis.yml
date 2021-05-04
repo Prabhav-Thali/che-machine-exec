@@ -47,22 +47,30 @@ jobs:
      script: bash .travis/unit_tests.sh
 
    - stage: build images
+     on:
+      branch: master
      name: build image with nightly/short_sha tag on amd64
      arch: amd64
      script:
        - bash .travis/build_nightly.sh
 
    - name: build image with nightly/short_sha tag on arm64
+     on:
+      branch: master
      arch: arm64
      script:
        - bash .travis/build_nightly.sh
 
    - name: build image with nightly/short_sha tag on ppc64le
+     on:
+      branch: master
      arch: ppc64le
      script:
        - bash .travis/build_nightly.sh
 
    - name: build image with nightly/short_sha tag on s390x
+     on:
+      branch: travis-s390x
      arch: s390x
      script:
        - bash .travis/build_nightly.sh
