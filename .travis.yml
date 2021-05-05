@@ -68,34 +68,35 @@ jobs:
        - bash .travis/build_nightly.sh $TAG
    
    - stage: Publish multiarch image with nightly tag
+     if: branch = travis-s390x AND env(TAG) = "nightly"
      script: bash .travis/publish_multiarch.sh $TAG
 
    - stage: Build images
-     if: branch = travis-s390x AND env(TAG) != "nightly"
+     if: branch != master AND env(TAG) != "nightly"
      name: build image with nightly/short_sha tag on amd64
      arch: amd64
      script:
        - bash .travis/build_nightly.sh $TAG
 
    - name: build image with nightly/short_sha tag on arm64
-     if: branch = travis-s390x AND env(TAG) != "nightly"
+     if: branch != master AND env(TAG) != "nightly"
      arch: arm64
      script:
        - bash .travis/build_nightly.sh $TAG
 
    - name: build image with nightly/short_sha tag on ppc64le
-     if: branch = travis-s390x AND env(TAG) != "nightly"
+     if: branch != master AND env(TAG) != "nightly"
      arch: ppc64le
      script:
        - bash .travis/build_nightly.sh $TAG
 
    - name: build image with nightly/short_sha tag on s390x
-     if: branch = travis-s390x AND env(TAG) != "nightly"
+     if: branch != master AND env(TAG) != "nightly"
      arch: s390x
      script:
        - bash .travis/build_nightly.sh $TAG
 
    - stage: Publish multiarch image with release tag
-     if: branch = travis-s390x AND env(TAG) != "nightly"
+     if: branch != master AND env(TAG) != "nightly"
      script: bash .travis/publish_multiarch.sh $TAG
      after_success: bash make-release.sh --version $TAG --tag-release
