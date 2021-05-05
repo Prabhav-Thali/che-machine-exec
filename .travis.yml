@@ -96,6 +96,7 @@ jobs:
        - bash .travis/build_nightly.sh $TAG
 
    - stage: Publish multiarch image
+     install: true
      if: branch = travis-s390x AND env(TAG) != "nightly"
      script: bash .travis/publish_multiarch.sh $TAG
      after_success: bash make-release.sh --version $TAG --tag-release
