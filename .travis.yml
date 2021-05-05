@@ -12,6 +12,7 @@ services:
 env:  
    global:
    - TAG=nightly
+   - RECREATE_TAGS=false
 
 install:
   - export SHORT_SHA=$(git rev-parse --short HEAD)
@@ -83,8 +84,28 @@ jobs:
      script: bash .travis/publish_multiarch.sh $TAG
 
    - stage: Build images for release version
+   - name: Check existing tags
      if: branch != master AND env(TAG) != "nightly"
-     name: build image on amd64
+     arch: amd64
+     script: |
+          set +e
+          RECREATE_TAGS=$RECREATE_TAGS
+          VERSION=$TAG
+          EXISTING_TAG=$(git ls-remote --exit-code origin refs/tags/${VERSION})
+          if [[ -n ${EXISTING_TAG} ]]; then
+            if [[ ${RECREATE_TAGS} == "true" ]]; then
+              echo "[INFO] Removing tag for ${VERSION} version. New tag will be recreated during release."
+              git push origin :$VERSION
+            else
+              echo "[ERROR] Cannot proceed with release - tag ${EXISTING_TAG} already exists."
+              exit 1
+            fi
+          else
+            echo "[INFO] No existing tags detected for $VERSION"
+          fi
+
+   - name: build image on amd64
+     if: branch != master AND env(TAG) != "nightly"
      arch: amd64
      script:
        - bash .travis/build_nightly.sh $TAG
