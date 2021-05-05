@@ -1,7 +1,3 @@
-branches:
-  only:
-  - travis-s390x
-
 language: go
 
 go:
@@ -13,11 +9,11 @@ dist: focal
 services:
   - docker
 
-# env:  
-#   global:
-#   - SHORT_SHA=$(git rev-parse --short HEAD)
+env:  
+   global:
+   - TAG=nightly
 
-install: 
+install:
   - export GO111MODULE="on" 
   - go get ${gobuild_args} ./...
   - export SHORT_SHA=$(git rev-parse --short HEAD)
@@ -47,29 +43,60 @@ jobs:
      script: bash .travis/unit_tests.sh
 
    - stage: build images
-     if: branch = master
+     if: branch = travis-s390x AND  $TAG = "nightly"
      name: build image with nightly/short_sha tag on amd64
      arch: amd64
      script:
-       - bash .travis/build_nightly.sh
+       - bash .travis/build_nightly.sh $TAG
 
    - name: build image with nightly/short_sha tag on arm64
-     if: branch = master
+     if: branch = travis-s390x AND  $TAG = "nightly"
      arch: arm64
      script:
-       - bash .travis/build_nightly.sh
+       - bash .travis/build_nightly.sh $TAG
 
    - name: build image with nightly/short_sha tag on ppc64le
-     if: branch = master
+     if: branch = travis-s390x AND  $TAG = "nightly"
      arch: ppc64le
      script:
-       - bash .travis/build_nightly.sh
+       - bash .travis/build_nightly.sh $TAG
 
    - name: build image with nightly/short_sha tag on s390x
-     if: branch = travis-s390x
+     if: branch = travis-s390x AND  $TAG = "nightly"
      arch: s390x
      script:
-       - bash .travis/build_nightly.sh
+       - bash .travis/build_nightly.sh $TAG
    
    - stage: Publish multiarch image
-     script: bash .travis/publish_multiarch.sh
+     script: bash .travis/publish_multiarch.sh $TAG
+
+   - stage: Build images
+     if: branch = travis-s390x AND  $TAG != "nightly"
+     name: build image with nightly/short_sha tag on amd64
+     arch: amd64
+     script:
+       - bash .travis/build_nightly.sh $TAG
+
+   - name: build image with nightly/short_sha tag on arm64
+     if: branch = travis-s390x AND  $TAG != "nightly"
+     arch: arm64
+     script:
+       - bash .travis/build_nightly.sh $TAG
+
+   - name: build image with nightly/short_sha tag on ppc64le
+     if: branch = travis-s390x AND  $TAG != "nightly"
+     arch: ppc64le
+     script:
+       - bash .travis/build_nightly.sh $TAG
+
+   - name: build image with nightly/short_sha tag on s390x
+     if: branch = travis-s390x AND  $TAG != "nightly"
+     arch: s390x
+     script:
+       - bash .travis/build_nightly.sh $TAG
+
+   - stage: Publish multiarch image
+     script: bash .travis/publish_multiarch.sh $TAG
+
+   - stage: Tag the release
+     script: bash make-release.sh --version $TAG --tag-release
