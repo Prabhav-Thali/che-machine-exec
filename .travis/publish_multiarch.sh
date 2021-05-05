@@ -8,6 +8,9 @@ AMEND+=" --amend quay.io/prabhav/che-machine-exec:$TAG-arm64";
 AMEND+=" --amend quay.io/prabhav/che-machine-exec:$TAG-ppc64le";
 AMEND+=" --amend quay.io/prabhav/che-machine-exec:$TAG-s390x";
 
+echo $AMEND
+echo $TAG
+
 docker manifest create quay.io/prabhav/che-machine-exec:"$TAG" "$AMEND"
 docker manifest push quay.io/prabhav/che-machine-exec:"$TAG"
 
