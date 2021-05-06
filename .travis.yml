@@ -6,6 +6,9 @@ go:
 os: linux
 dist: focal
 
+git:
+  depth: false
+
 services:
   - docker
 
@@ -153,10 +156,11 @@ jobs:
 
    - stage: Publish multiarch image with release tag
      if: env(TAG) != "nightly"
+     api_key: $GITHUB_TOKEN
      script: bash .travis/publish_multiarch.sh $TAG
      after_success:
-       - git config --global user.name "Mykhailo Kuznietsov"
-       - git config --global user.email "mkuznets@redhat.com"
+       - git config --global user.name "Prabhav Thali"
+       - git config --global user.email "Prabhav.Thali1@ibm.com"
        - echo $GITHUB_TOKEN
        - export GITHUB_TOKEN=$GITHUB_TOKEN
        - echo $GITHUB_TOKEN
