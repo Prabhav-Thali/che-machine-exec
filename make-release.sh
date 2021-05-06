@@ -37,6 +37,9 @@ else
   BASEBRANCH="${BRANCH}"
 fi
 
+echo $BRANCH
+echo $BASEBRANCH
+
 # create new branch off ${BASEBRANCH} (or check out latest commits if branch already exists), then push to origin
 if [[ "${BASEBRANCH}" != "${BRANCH}" ]]; then
   git branch "${BRANCH}" || git checkout "${BRANCH}" && git pull origin "${BRANCH}"
