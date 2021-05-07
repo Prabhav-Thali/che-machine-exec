@@ -25,90 +25,51 @@ install:
 
 jobs:
   include:
-   - stage: run unit test on amd64
+   - &unit-test
+     stage: Run unit tests
      if: type = pull_request
      install: 
        - export GO111MODULE="on" 
        - go get ${gobuild_args} ./...
-     arch: amd64
      script: bash .travis/unit_tests.sh
-
-   - name: run unit test on arm64
-     if: type = pull_request
-     install: 
-       - export GO111MODULE="on" 
-       - go get ${gobuild_args} ./...
+     name: Run unit tests on amd64  
+     arch: amd64
+   - <<: *unit-test
+     name: Run unit tests on arm64
      arch: arm64
-     script: bash .travis/unit_tests.sh
-
-   - name: run unit test on ppc64le
-     if: type = pull_request
-     install: 
-       - export GO111MODULE="on" 
-       - go get ${gobuild_args} ./...
+   - <<: *unit-test
+     name: Run unit tests on ppc64le
      arch: ppc64le
-     script: bash .travis/unit_tests.sh
-
-   - name: run unit test on s390x
-     if: type = pull_request
-     install: 
-       - export GO111MODULE="on" 
-       - go get ${gobuild_args} ./...
+   - <<: *unit-test
+     name: Run unit tests on s390x
      arch: s390x
-     script: bash .travis/unit_tests.sh
 
-   - stage: Build images with nightly/short_sha tag
+   - &nightly-build
+     stage: Build images with nightly/short_sha tag
      if: branch = travis-s390x AND env(TAG) = "nightly"
-     name: build image on amd64
-     arch: amd64
      script:
        - bash .travis/build_nightly.sh $TAG
+     name: Build image on amd64
+     arch: amd64
 
    #name is kept for all the jobs as default test command get executed.
-   - name: build image on arm64
-     if: branch = travis-s390x AND env(TAG) = "nightly"
+   - <<: *nightly-build
+     name: Build image on arm64
      arch: arm64
-     script:
-       - bash .travis/build_nightly.sh $TAG
 
-   - name: build image on ppc64le
-     if: branch = travis-s390x AND env(TAG) = "nightly"
+   - <<: *nightly-build
+     name: Build image on ppc64le
      arch: ppc64le
-     script:
-       - bash .travis/build_nightly.sh $TAG
 
-   - name: build image on s390x
-     if: branch = travis-s390x AND env(TAG) = "nightly"
+   - <<: *nightly-build
+     name: Build image on s390x
      arch: s390x
-     script:
-       - bash .travis/build_nightly.sh $TAG
    
    - stage: Publish multiarch image with nightly tag
      if: branch = travis-s390x AND env(TAG) = "nightly"
      script: bash .travis/publish_multiarch.sh $TAG
 
-  #  - name: Check existing tags
-  #    if: branch != master AND env(TAG) != "nightly"
-  #    arch: amd64
-  #    script: |
-  #         set +e
-  #         RECREATE_TAGS=$RECREATE_TAGS
-  #         VERSION=$TAG
-  #         EXISTING_TAG=$(git ls-remote --exit-code origin refs/tags/${VERSION})
-  #         if [[ -n ${EXISTING_TAG} ]]; then
-  #           if [[ ${RECREATE_TAGS} == "true" ]]; then
-  #             echo "[INFO] Removing tag for ${VERSION} version. New tag will be recreated during release."
-  #             git push origin :$VERSION
-  #           else
-  #             echo "[ERROR] Cannot proceed with release - tag ${EXISTING_TAG} already exists."
-  #             exit 1
-  #           fi
-  #         else
-  #           echo "[INFO] No existing tags detected for $VERSION"
-  #         fi
-
-   - stage: Build images for release version
-     name: Check existing tags
+   - stage: Check existing tags
      if: branch != master AND env(TAG) != "nightly"
      arch: amd64
      script: 
@@ -130,29 +91,25 @@ jobs:
           echo "[INFO] No existing tags detected for $VERSION"
        fi
 
-   - name: build image on amd64
+   - &release-build
+     stage: Build images for release version
      if: branch != master AND env(TAG) != "nightly"
+     script:
+       - bash .travis/build_nightly.sh $TAG
+     name: build image on amd64
      arch: amd64
-     script:
-       - bash .travis/build_nightly.sh $TAG
 
-   - name: build image on arm64
-     if: branch != master AND env(TAG) != "nightly"
+   - <<: *release-build
+     name: Build image on arm64
      arch: arm64
-     script:
-       - bash .travis/build_nightly.sh $TAG
 
-   - name: build image on ppc64le
-     if: branch != master AND env(TAG) != "nightly"
+   - <<: *release-build
+     name: build image on ppc64le
      arch: ppc64le
-     script:
-       - bash .travis/build_nightly.sh $TAG
 
-   - name: build image on s390x
-     if: branch != master AND env(TAG) != "nightly"
+   - <<: *release-build
+     name: build image on s390x
      arch: s390x
-     script:
-       - bash .travis/build_nightly.sh $TAG
 
    - stage: Publish multiarch image with release tag
      if: env(TAG) != "nightly"
@@ -161,8 +118,5 @@ jobs:
      after_success:
        - git config --global user.name "Prabhav Thali"
        - git config --global user.email "Prabhav.Thali1@ibm.com"
-       - echo $GITHUB_TOKEN
        - export GITHUB_TOKEN=$GITHUB_TOKEN
-       - git remote remove origin
-       - git remote add origin https://$GITHUB_TOKEN@github.com/Prabhav-Thali/che-machine-exec.git
        - bash make-release.sh --version $TAG --tag-release $NO_COMMIT
