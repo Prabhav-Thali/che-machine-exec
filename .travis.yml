@@ -122,12 +122,12 @@ jobs:
        - bash make-release.sh --version $TAG --tag-release $NO_COMMIT
      after_success:
        - |
-         echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":white_check_mark: Che Machine Exec ${{ github.event.inputs.version }} has been released: https://quay.io/eclipse/che-machine-exec:${{ github.event.inputs.version }}\"}" > mattermost.json    
-         echo mattermost.json
+         echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":white_check_mark: Che Machine Exec ${TAG} has been released: https://quay.io/eclipse/che-machine-exec:${TAG}\"}" > mattermost.json
+         cat mattermost.json
          curl -i -X POST -H 'Content-Type: application/json' -d @mattermost.json $MATTERMOST_WEBHOOK_URL
 
      after_failure:
        - |
-         echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":no_entry_sign: Che Machine Exec ${{ github.event.inputs.version }} release has failed: https://github.com/eclipse-che/che-machine-exec/actions/workflows/release.yml\"}" > mattermost.json
-         echo mattermost.json
+         echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":no_entry_sign: Che Machine Exec ${TAG} release has failed: https://github.com/eclipse-che/che-machine-exec/actions/workflows/release.yml\"}" > mattermost.json
+         cat mattermost.json
          curl -i -X POST -H 'Content-Type: application/json' -d @mattermost.json $MATTERMOST_WEBHOOK_URL
