@@ -1,4 +1,5 @@
 #!/bin/bash
+set +e
 
 TAG=$1
 
