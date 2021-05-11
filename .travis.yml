@@ -19,8 +19,8 @@ env:
    - NO_COMMIT=''
 
 before_install:
-   - git clone https://$GITHUB_TOKEN@github.com/Prabhav-Thali/che-machine-exec.git
-   - cd che-machine-exec
+   - git clone "https://$GITHUB_TOKEN@github.com/${TRAVIS_REPO_SLUG}.git" "${TRAVIS_REPO_SLUG}"
+   - cd "${TRAVIS_REPO_SLUG}"
    - git checkout -qf ${TRAVIS_COMMIT}
 
 install:
