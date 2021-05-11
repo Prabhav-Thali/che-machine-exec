@@ -9,8 +9,6 @@ dist: focal
 git:
   clone: false
 
-cache: false
-
 services:
   - docker
 
@@ -21,6 +19,7 @@ env:
    - NO_COMMIT=''
 
 install:
+  - unset -f cd
   - git clone "https://$GITHUB_TOKEN@github.com/${TRAVIS_REPO_SLUG}.git" "${TRAVIS_REPO_SLUG}"
   - cd "${TRAVIS_REPO_SLUG}"
   - git checkout -qf ${TRAVIS_COMMIT}
@@ -128,11 +127,9 @@ jobs:
      after_success:
        - |
          echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":white_check_mark: Che Machine Exec ${TAG} has been released: https://quay.io/eclipse/che-machine-exec:${TAG}\"}" > mattermost.json
-         cat mattermost.json
          curl -i -X POST -H 'Content-Type: application/json' -d @mattermost.json $MATTERMOST_WEBHOOK_URL
 
      after_failure:
        - |
          echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":no_entry_sign: Che Machine Exec ${TAG} release has failed: https://github.com/eclipse-che/che-machine-exec/actions/workflows/release.yml\"}" > mattermost.json
-         cat mattermost.json
          curl -i -X POST -H 'Content-Type: application/json' -d @mattermost.json $MATTERMOST_WEBHOOK_URL
