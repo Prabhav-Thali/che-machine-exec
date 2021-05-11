@@ -1,8 +1,13 @@
+language: go
+
+go:
+- 1.12.8
+
 os: linux
 dist: focal
 
 git:
-  clone: false
+  depth: false
 
 services:
   - docker
@@ -14,16 +19,11 @@ env:
    - NO_COMMIT=''
 
 install:
-  - git clone "https://$GITHUB_TOKEN@github.com/${TRAVIS_REPO_SLUG}.git" "${TRAVIS_REPO_SLUG}"
-  - cd "${TRAVIS_REPO_SLUG}"
-  - git checkout -qf ${TRAVIS_COMMIT}
+  - git remote remove origin
+  - git remote add origin https://$GITHUB_TOKEN@github.com/Prabhav-Thali/che-machine-exec.git
   - export SHORT_SHA=$(git rev-parse --short HEAD)
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - echo "$QUAY_PASSWORD" |docker login quay.io -u "$QUAY_USERNAME " --password-stdin
-
-language: go
-go:
-- 1.12.8
 
 jobs:
   include:
