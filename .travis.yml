@@ -9,6 +9,8 @@ dist: focal
 git:
   clone: false
 
+cache: false
+
 services:
   - docker
 
