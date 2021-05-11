@@ -7,9 +7,6 @@
 TAG_RELEASE=0
 NOCOMMIT=0
 
-git remote remove origin
-git remote add origin https://$GITHUB_TOKEN@github.com/Prabhav-Thali/che-machine-exec.git
-
 while [[ "$#" -gt 0 ]]; do
   case $1 in
     '-t'|'--tag-release') TAG_RELEASE=1; shift 0;;
