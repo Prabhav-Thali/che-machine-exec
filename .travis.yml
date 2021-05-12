@@ -33,6 +33,9 @@ jobs:
    - stage: Code Coverage Report
      if: type = push
      arch: amd64
+     install: 
+       - export GO111MODULE="on" 
+       - go get ${gobuild_args} ./...
      script:
      - |
        echo "" > coverage.txt
@@ -62,7 +65,7 @@ jobs:
      stage: Build images with nightly/short_sha tag
      if: type=push AND branch = travis-s390x AND env(TAG) = "nightly"
      script:
-       - bash .travis/build_nightly.sh $TAG
+       - bash .travis/build_image.sh
      name: Build image on amd64
      arch: amd64
 
@@ -81,7 +84,7 @@ jobs:
    
    - stage: Publish multiarch image with nightly tag
      if: type=push AND branch = travis-s390x AND env(TAG) = "nightly"
-     script: bash .travis/publish_multiarch.sh $TAG
+     script: bash .travis/publish_multiarch.sh
 
    - stage: Check existing tags
      if: type = api AND env(TAG) != "nightly"
@@ -107,7 +110,7 @@ jobs:
      stage: Build images for release version
      if: type = api AND env(TAG) != "nightly"
      script:
-       - bash .travis/build_nightly.sh $TAG
+       - bash .travis/build_image.sh
      name: build image on amd64
      arch: amd64
 
@@ -125,7 +128,7 @@ jobs:
 
    - stage: Publish multiarch image with release tag
      if: type = api AND env(TAG) != "nightly"
-     script: bash .travis/publish_multiarch.sh $TAG
+     script: bash .travis/publish_multiarch.sh
 
    - stage: Tag release and notify on mattermost
      if: type = api AND env(TAG) != "nightly"

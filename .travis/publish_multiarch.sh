@@ -9,10 +9,10 @@ AMEND+=" --amend ${REGISTRY}/${ORGANIZATION}/${IMAGE}:$TAG-ppc64le";
 AMEND+=" --amend ${REGISTRY}/${ORGANIZATION}/${IMAGE}:$TAG-s390x";
 
 #Create manifest and push multiarch image
-docker manifest create "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${TAG}" "$AMEND"
+docker manifest create "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${TAG}" $AMEND
 docker manifest push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${TAG}"
 
 if [[ "$TAG" == "nightly" ]]; then
-    docker manifest create "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${SHORT_SHA}" "$AMEND"
+    docker manifest create "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${SHORT_SHA}" $AMEND
     docker manifest push "${REGISTRY}/${ORGANIZATION}/${IMAGE}:${SHORT_SHA}"
 fi
