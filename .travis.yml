@@ -27,6 +27,15 @@ install:
 
 jobs:
   include:
+   - stage: Code Coverage Report
+     if: type = push
+     arch: amd64
+     script:
+     - |
+       echo "" > coverage.txt
+       export CHE_WORKSPACE_ID=test_id; go test -v ./... -coverprofile coverage.txt
+       bash <(curl -s https://codecov.io/bash)
+
    - &unit-test
      stage: Run unit tests
      if: type = pull_request
@@ -48,7 +57,7 @@ jobs:
 
    - &nightly-build
      stage: Build images with nightly/short_sha tag
-     if: branch = travis-s390x AND env(TAG) = "nightly"
+     if: type=push AND branch = travis-s390x AND env(TAG) = "nightly"
      script:
        - bash .travis/build_nightly.sh $TAG
      name: Build image on amd64
