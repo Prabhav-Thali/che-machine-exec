@@ -43,13 +43,13 @@ jobs:
        bash <(curl -s https://codecov.io/bash)
 
    - &unit-test
-     stage: Execute unit tests and build image
+     stage: Unit tests and Docker build PR
      if: type = pull_request
      install: 
        - export GO111MODULE="on" 
        - go get ${gobuild_args} ./...
      script: bash .travis/pr_check.sh
-     name: PR check on amd64  
+     name: PR check on amd64 
      arch: amd64
    - <<: *unit-test
      name: PR check on arm64
@@ -62,14 +62,13 @@ jobs:
      arch: s390x
 
    - &nightly-build
-     stage: Build images with nightly/short_sha tag
-     if: type=push AND branch = travis-s390x AND env(TAG) = "nightly"
+     stage: Build and push both short SHA tag and nightly tag
+     if: type = push AND branch = travis-s390x AND env(TAG) = "nightly"
      script:
        - bash .travis/build_image.sh
      name: Build image on amd64
      arch: amd64
 
-   #name is kept for all the jobs as default test command get executed.
    - <<: *nightly-build
      name: Build image on arm64
      arch: arm64
@@ -82,11 +81,12 @@ jobs:
      name: Build image on s390x
      arch: s390x
    
-   - stage: Publish multiarch image with nightly tag
-     if: type=push AND branch = travis-s390x AND env(TAG) = "nightly"
+   - stage: Publish multiarch image with nightly & short_sha tag
+     if: type = push AND branch = travis-s390x AND env(TAG) = "nightly"
      script: bash .travis/publish_multiarch.sh
 
-   - stage: Check existing tags
+   - stage: Release Che Machine Exec
+     name: Check existing tags
      if: type = api AND env(TAG) != "nightly"
      arch: amd64
      script: 
@@ -111,7 +111,7 @@ jobs:
      if: type = api AND env(TAG) != "nightly"
      script:
        - bash .travis/build_image.sh
-     name: build image on amd64
+     name: Build image on amd64
      arch: amd64
 
    - <<: *release-build
@@ -119,11 +119,11 @@ jobs:
      arch: arm64
 
    - <<: *release-build
-     name: build image on ppc64le
+     name: Build image on ppc64le
      arch: ppc64le
 
    - <<: *release-build
-     name: build image on s390x
+     name: Build image on s390x
      arch: s390x
 
    - stage: Publish multiarch image with release tag
@@ -135,7 +135,6 @@ jobs:
      script: 
        - git config --global user.name "Prabhav Thali"
        - git config --global user.email "Prabhav.Thali1@ibm.com"
-       - export GITHUB_TOKEN=$GITHUB_TOKEN
        - bash make-release.sh --version $TAG --tag-release $NO_COMMIT
      after_success:
        - |
