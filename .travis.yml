@@ -77,7 +77,7 @@ jobs:
      arch: s390x
    
    - stage: Publish multiarch image with nightly tag
-     if: branch = travis-s390x AND env(TAG) = "nightly"
+     if: type=push AND branch = travis-s390x AND env(TAG) = "nightly"
      script: bash .travis/publish_multiarch.sh $TAG
 
    - stage: Check existing tags
