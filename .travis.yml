@@ -17,6 +17,9 @@ env:
    - TAG=nightly
    - RECREATE_TAGS=false
    - NO_COMMIT=''
+   - REGISTRY=quay.io
+   - ORGANIZATION=prabhav
+   - IMAGE=che-machine-exec
 
 install:
   - git remote remove origin
@@ -37,22 +40,22 @@ jobs:
        bash <(curl -s https://codecov.io/bash)
 
    - &unit-test
-     stage: Run unit tests
+     stage: Execute unit tests and build image
      if: type = pull_request
      install: 
        - export GO111MODULE="on" 
        - go get ${gobuild_args} ./...
-     script: bash .travis/unit_tests.sh
-     name: Run unit tests on amd64  
+     script: bash .travis/pr_check.sh
+     name: PR check on amd64  
      arch: amd64
    - <<: *unit-test
-     name: Run unit tests on arm64
+     name: PR check on arm64
      arch: arm64
    - <<: *unit-test
-     name: Run unit tests on ppc64le
+     name: PR check on ppc64le
      arch: ppc64le
    - <<: *unit-test
-     name: Run unit tests on s390x
+     name: PR check on s390x
      arch: s390x
 
    - &nightly-build
