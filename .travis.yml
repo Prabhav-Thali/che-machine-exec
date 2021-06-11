@@ -10,7 +10,7 @@ git:
   depth: false
 
 install: 
-  - git clone git@github.com:Prabhav-Thali/che-machine-exec.git
+  - git clone --branch=ssh-test git@github.com:Prabhav-Thali/che-machine-exec.git
   - cd che-machine-exec
   - git checkout -qf $TRAVIS_COMMIT
 
