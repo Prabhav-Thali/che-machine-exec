@@ -38,4 +38,6 @@ jobs:
        git status
        git remote -v
        git commit -m "new file"
+       git status
+       pwd
        git push origin ssh-test
