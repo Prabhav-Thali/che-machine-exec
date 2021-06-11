@@ -25,6 +25,7 @@ before_install:
   # Add the key to the authentication agent
   - DISPLAY=":0.0" SSH_ASKPASS="/tmp/askpass" setsid ssh-add /tmp/git_deploy_key </dev/null
   - git remote set-url origin git@github.com:${TRAVIS_REPO_SLUG}.git
+  - echo $TRAVIS_REPO_SLUG
 
 jobs:
   include:
@@ -34,5 +35,6 @@ jobs:
      - |
        echo "Hello" > Hello.txt
        git add .
+       git remote -v
        git commit -m "new file"
        git push origin ssh-test
