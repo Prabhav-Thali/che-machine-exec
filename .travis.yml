@@ -68,7 +68,7 @@ jobs:
        bash <(curl -s https://codecov.io/bash)
    - &next-build
      name: Build and push both short SHA tag and next tag on amd64
-     if: type = push AND branch = travis-test AND env(TAG) = "next"
+     if: type = push AND branch = travis-s390x AND env(TAG) = "next"
      script:
        - bash .travis/build_image.sh
      arch: amd64
@@ -83,7 +83,7 @@ jobs:
      arch: s390x
    
    - stage: Publish multiarch image with next & short_sha tag
-     if: type = push AND branch = travis-test AND env(TAG) = "next"
+     if: type = push AND branch = travis-s390x AND env(TAG) = "next"
      script: bash .travis/publish_multiarch.sh
 
    - stage: Check existing tags
