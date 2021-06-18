@@ -26,6 +26,15 @@ install:
   - echo "$QUAY_PASSWORD" | docker login quay.io -u "$QUAY_USERNAME " --password-stdin
 
 jobs:
+  fast_finish: true
+  allow_failures:
+   - if: type = pull_request
+     arch: arm64
+   - if: type = pull_request
+     arch: ppc64le
+   - if: type = pull_request
+     arch: s390x
+   - stage: Release che-machine-exec
   include:
    - &docker-build-pr
      stage: PR Check
@@ -37,6 +46,8 @@ jobs:
    - <<: *docker-build-pr
      name: Check docker build on arm64
      arch: arm64
+     script:
+       - bash -c "exit 1"
    - <<: *docker-build-pr
      name: Check docker build on ppc64le
      arch: ppc64le
@@ -65,6 +76,8 @@ jobs:
    - <<: *unit-test
      name: Run unit tests on s390x
      arch: s390x
+     script:
+       - bash -c "exit 1"
 
    - &next-build
      stage: Build and push both short SHA tag and next tag
@@ -88,7 +101,7 @@ jobs:
      script: bash .travis/publish_multiarch.sh
 
    - &release-build
-     stage: Build images for release version
+     stage: Release che-machine-exec
      name: Build image on amd64
      arch: amd64
      if: type = api AND env(TAG) != "next"
@@ -98,23 +111,19 @@ jobs:
          BRANCH=${TAG%.*}.x
          git checkout "${BRANCH}"
          bash .travis/build_image.sh
-     after_failure:
-       - |
-         set -e
-         echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":no_entry_sign: Che Machine Exec ${TAG}-${TRAVIS_TAG} release has failed: https://github.com/eclipse-che/che-machine-exec/actions/workflows/release.yml\"}" > mattermost.json
-         curl -i -X POST -H 'Content-Type: application/json' -d @mattermost.json $MATTERMOST_WEBHOOK_URL
-
    - <<: *release-build
      name: Build image on arm64
      arch: arm64
-
    - <<: *release-build
      name: Build image on ppc64le
      arch: ppc64le
-
+     script:
+       - bash -c "exit 1"
    - <<: *release-build
      name: Build image on s390x
      arch: s390x
+     script:
+       - bash -c "exit 1"
 
    - stage: Publish multiarch image with release tag
      if: type = api AND env(TAG) != "next"
@@ -129,12 +138,3 @@ jobs:
          set -e
          echo "{\"username\":\"che-bot\",\"channel\":\"eclipse-che-releases\",\"text\":\":no_entry_sign: Che Machine Exec ${TAG}-${TRAVIS_TAG} release has failed: https://github.com/eclipse-che/che-machine-exec/actions/workflows/release.yml\"}" > mattermost.json
          curl -i -X POST -H 'Content-Type: application/json' -d @mattermost.json $MATTERMOST_WEBHOOK_URL
-     
-  fast_finish: true
-  allow_failures:
-   - if: type = pull_request
-     arch: arm64
-   - if: type = pull_request
-     arch: ppc64le
-   - if: type = pull_request
-     arch: s390x
