@@ -79,7 +79,7 @@ jobs:
      stage: Build and push both short SHA tag and next tag
      name: Build image on amd64
      arch: amd64
-     if: type = api AND branch = travis-s390x AND env(TAG) = "next"
+     if: type = api AND branch = travis AND env(TAG) = "next"
      script:
        - bash .travis/build_image.sh
    - <<: *next-build
@@ -93,7 +93,7 @@ jobs:
      arch: s390x
    
    - stage: Publish multiarch image with next & short_sha tag
-     if: type = api AND branch = travis-s390x AND env(TAG) = "next"
+     if: type = api AND branch = travis AND env(TAG) = "next"
      script: bash .travis/publish_multiarch.sh
 
    - &release-build
