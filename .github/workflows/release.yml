@@ -98,6 +98,7 @@ jobs:
       run: |
         body="{
         \"request\":{
+        \"branch\":\"travis-s390x\",
         \"config\": {
           \"env\": {
             \"global\": [
