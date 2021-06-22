@@ -35,7 +35,6 @@ jobs:
      arch: ppc64le
    - if: env(PULL_REQUEST) = true
      arch: s390x
-   - stage: Release che-machine-exec
   include:
    - &docker-build-pr
      stage: PR Check

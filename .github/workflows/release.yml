@@ -94,3 +94,32 @@ jobs:
           MATTERMOST_CHANNEL: eclipse-che-releases
           MATTERMOST_USERNAME: che-bot
 
+  travis-build:
+    needs: build
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+    - name: Checkout che-machine-exec source code
+      uses: actions/checkout@v2
+    - name: Trigger build on Travis CI
+      run: |
+        body="{
+        \"request\":{
+        \"config\": {
+          \"env\": {
+            \"global\": [
+              \"TAG=${{ github.event.inputs.version }}\"
+             ]
+           }
+        }
+        }}"
+
+        echo $body
+
+        curl -s -X POST \
+        -H "Content-Type: application/json" \
+        -H "Accept: application/json" \
+        -H "Travis-API-Version: 3" \
+        -H "Authorization: token ${{ secrets.TRAVIS_TOKEN }}" \
+        -d "$body" \
+        https://api.travis-ci.com/repo/Prabhav-Thali%2Fche-machine-exec/requests
