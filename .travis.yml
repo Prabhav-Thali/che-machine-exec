@@ -19,7 +19,7 @@ env:
    - REGISTRY=quay.io
    - ORGANIZATION=prabhav
    - IMAGE=che-machine-exec
-   - PULL_REQUEST=false
+   - PR_NUMBER=
 
 install:
   - export SHORT_SHA=$(git rev-parse --short HEAD)
@@ -29,19 +29,21 @@ install:
 jobs:
   fast_finish: true
   allow_failures:
-   - if: type = api and env(PULL_REQUEST) = true
+   - if: env(PR_NUMBER) IS present
      arch: arm64
-   - if: env(PULL_REQUEST) = true
+   - if: env(PR_NUMBER) IS present
      arch: ppc64le
-   - if: env(PULL_REQUEST) = true
+   - if: env(PR_NUMBER) IS present
      arch: s390x
   include:
    - &docker-build-pr
      stage: PR Check
-     if: type = api and env(PULL_REQUEST) = true
+     if: env(PR_NUMBER) IS present
      name: Check docker build on amd64
      arch: amd64
-     install: skip
+     install:
+       - git fetch origin +refs/pull/${PR_NUMBER}/merge
+       - git checkout -qf FETCH_HEAD
      script: docker build -f build/dockerfiles/Dockerfile -t "${REGISTRY}/${ORGANIZATION}/${IMAGE}:pr-check-${TRAVIS_CPU_ARCH}" .
    - <<: *docker-build-pr
      name: Check docker build on arm64
@@ -56,8 +58,10 @@ jobs:
    - &unit-test
      name: Run unit tests on amd64
      arch: amd64
-     if: type= api and env(PULL_REQUEST) = true
+     if: env(PR_NUMBER) IS present
      install: 
+       - git fetch origin +refs/pull/${PR_NUMBER}/merge
+       - git checkout -qf FETCH_HEAD
        - export GO111MODULE="on" 
        - go get ${gobuild_args} ./...
      script:
