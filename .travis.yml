@@ -38,7 +38,7 @@ jobs:
   include:
    - &docker-build-pr
      stage: PR Check
-     if: env(PULL_REQUEST) = true
+     if: type = api and env(PULL_REQUEST) = true
      name: Check docker build on amd64
      arch: amd64
      install: skip
