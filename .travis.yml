@@ -43,7 +43,7 @@ jobs:
      name: Check docker build on amd64
      arch: amd64
      install:
-       - git fetch origin +refs/pull/${PR_NUMER}/merge
+       - git fetch origin +refs/pull/${PR_NUMBER}/merge
        - git checkout -qf FETCH_HEAD
      script: docker build -f build/dockerfiles/Dockerfile -t "${REGISTRY}/${ORGANIZATION}/${IMAGE}:pr-check-${TRAVIS_CPU_ARCH}" .
    - <<: *docker-build-pr
