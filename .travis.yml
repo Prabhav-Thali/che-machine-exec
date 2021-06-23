@@ -29,16 +29,16 @@ install:
 jobs:
   fast_finish: true
   allow_failures:
-   - if: env(PULL_REQUEST) = true
+   - if: type = pull_request
      arch: arm64
-   - if: env(PULL_REQUEST) = true
+   - if: type = pull_request
      arch: ppc64le
-   - if: env(PULL_REQUEST) = true
+   - if: type = pull_request
      arch: s390x
   include:
    - &docker-build-pr
      stage: PR Check
-     if: env(PULL_REQUEST) = true
+     if: type = pull_request
      name: Check docker build on amd64
      arch: amd64
      install: skip
@@ -56,7 +56,7 @@ jobs:
    - &unit-test
      name: Run unit tests on amd64
      arch: amd64
-     if: env(PULL_REQUEST) = true
+     if: type = pull_request
      install: 
        - export GO111MODULE="on" 
        - go get ${gobuild_args} ./...
