@@ -38,7 +38,7 @@ jobs:
       run: |
         body="{
         \"request\":{
-        \"branch\":\"${{ github.event.pull_request.head.sha }}\",
+        \"branch\":\"${GITHUB_SHA}\",
         \"config\": {
           \"env\": {
             \"global\": [
