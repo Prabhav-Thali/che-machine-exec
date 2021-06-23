@@ -56,7 +56,7 @@ jobs:
    - &unit-test
      name: Run unit tests on amd64
      arch: amd64
-     if: env(PULL_REQUEST) = true
+     if: type= api and env(PULL_REQUEST) = true
      install: 
        - export GO111MODULE="on" 
        - go get ${gobuild_args} ./...
