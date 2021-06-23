@@ -29,7 +29,7 @@ install:
 jobs:
   fast_finish: true
   allow_failures:
-   - if: env(PULL_REQUEST) = true
+   - if: type = api and env(PULL_REQUEST) = true
      arch: arm64
    - if: env(PULL_REQUEST) = true
      arch: ppc64le
