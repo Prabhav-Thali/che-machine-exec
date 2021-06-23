@@ -44,7 +44,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -mod=vendor -a -ldflags '-w -s' -a -instal
 FROM docker.io/node:10.16-alpine as cloud_shell_builder
 COPY --from=go_builder /che-machine-exec/cloud-shell cloud-shell-src
 WORKDIR cloud-shell-src
-RUN echo "test PR" && \
+RUN echo "test-PR" && \
     yarn && \
     yarn run build && \
     mkdir /app && \
