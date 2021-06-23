@@ -44,7 +44,6 @@ jobs:
         \"config\": {
           \"env\": {
             \"global\": [
-              \"PULL_REQUEST=true\",
               \"PR_NUMBER=${{ github.event.pull_request.number }}\"
              ]
            }

@@ -19,7 +19,6 @@ env:
    - REGISTRY=quay.io
    - ORGANIZATION=prabhav
    - IMAGE=che-machine-exec
-   - PULL_REQUEST=false
    - PR_NUMBER=
 
 install:
@@ -30,16 +29,16 @@ install:
 jobs:
   fast_finish: true
   allow_failures:
-   - if: env(PULL_REQUEST) = true
+   - if: env(PR_NUMBER) IS present
      arch: arm64
-   - if: env(PULL_REQUEST) = true
+   - if: env(PR_NUMBER) IS present
      arch: ppc64le
-   - if: env(PULL_REQUEST) = true
+   - if: env(PR_NUMBER) IS present
      arch: s390x
   include:
    - &docker-build-pr
      stage: PR Check
-     if: env(PULL_REQUEST) = true
+     if: env(PR_NUMBER) IS present
      name: Check docker build on amd64
      arch: amd64
      install:
@@ -59,7 +58,7 @@ jobs:
    - &unit-test
      name: Run unit tests on amd64
      arch: amd64
-     if: env(PULL_REQUEST) = true
+     if: env(PR_NUMBER) IS present
      install: 
        - git fetch origin +refs/pull/${PR_NUMBER}/merge
        - git checkout -qf FETCH_HEAD
