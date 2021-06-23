@@ -20,6 +20,7 @@ env:
    - ORGANIZATION=prabhav
    - IMAGE=che-machine-exec
    - PULL_REQUEST=false
+   - PR_NUMBER=
 
 install:
   - export SHORT_SHA=$(git rev-parse --short HEAD)
@@ -41,7 +42,9 @@ jobs:
      if: env(PULL_REQUEST) = true
      name: Check docker build on amd64
      arch: amd64
-     install: skip
+     install:
+       - git fetch origin +refs/pull/${PR_NUMER}/merge
+       - git checkout -qf FETCH_HEAD
      script: docker build -f build/dockerfiles/Dockerfile -t "${REGISTRY}/${ORGANIZATION}/${IMAGE}:pr-check-${TRAVIS_CPU_ARCH}" .
    - <<: *docker-build-pr
      name: Check docker build on arm64
@@ -58,6 +61,8 @@ jobs:
      arch: amd64
      if: env(PULL_REQUEST) = true
      install: 
+       - git fetch origin +refs/pull/${PR_NUMER}/merge
+       - git checkout -qf FETCH_HEAD
        - export GO111MODULE="on" 
        - go get ${gobuild_args} ./...
      script:
